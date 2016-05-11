@@ -1,0 +1,3 @@
+﻿"KEY1", "DESCRIPTION of Key1 - this is a preview and may not be dev complete", "PREVIEW"
+"KEY2", "DESCRIPTION of Key2 - this is dev complete, but not fully tested", "BETA"
+"KEY3", "DESCRIPTION of Key3 - ready for general release", "RC"

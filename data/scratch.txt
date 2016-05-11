@@ -1,0 +1,23 @@
+﻿// id (int), key (varchar(255)), description (varchar(4000)), type (smallint), RingtailVersion nvarchar(1000)
+insert dbo.launch_keys (key, description,type) select 'key', 'description', '0', '00.0000.0000'
+
+
+// table of all currently availble keys
+create table dbo.launch_keys (
+	variable_id int identity not null,
+	launch_key varchar(255) not null,
+	[description] varchar(4000) null,
+	type smallint not null,
+	RingtailVersion nvarchar(1000) not null
+)
+GO
+
+
+// Stores the current illuminated features
+create table dbo.dark_table (
+	variable_id int identity not null,
+	launch_key varchar(255) not null,
+	version_key nvarchar(1000) null,
+	[date_added] [datetime] NOT NULL,
+	RingtailVersion nvarchar(1000) null,
+)
