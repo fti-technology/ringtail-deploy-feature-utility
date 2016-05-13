@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualBasic.FileIO;
+using System.Text;
+using System.IO;
 
 namespace RingtailDeployFeatureUtility
 {
@@ -16,6 +18,7 @@ namespace RingtailDeployFeatureUtility
         RC = 4,
         ALL = PREVIEW | BETA | RC
     }
+
 
     /// <summary>
     /// Simple helper for text and CSV operations
@@ -35,7 +38,7 @@ namespace RingtailDeployFeatureUtility
         /// <param name="path"></param>
         /// <param name="keyFilter"></param>
         /// <returns></returns>
-        public static IEnumerable<KeyValuePair<string,string>> ParseCSV(string path, KeyTypesFilter keyFilter = KeyTypesFilter.ALL)
+        public static IEnumerable<KeyDataObject> ParseCSV(string path, KeyTypesFilter keyFilter = KeyTypesFilter.ALL)
         {
             using (TextFieldParser parser = new TextFieldParser(path))
             {
@@ -48,10 +51,15 @@ namespace RingtailDeployFeatureUtility
                 while (!parser.EndOfData)
                 {
                     string[] fields = parser.ReadFields();
-                    KeyValuePair<string, string> keyAndDesc;
-                    if (fields.Length == 3)
+                    KeyDataObject data;
+                    if (fields.Length == 4)
                     {
-                        keyAndDesc = new KeyValuePair<string, string>(fields[0], fields[1]);
+                        data = new KeyDataObject()
+                        {
+                            Description = fields[1],
+                            FeatureKey = fields[0],
+                            MinorKey = fields[3]
+                        };
                         
                         bool includeKeyRow = false;
                         if (keyFilter == KeyTypesFilter.ALL)
@@ -86,11 +94,56 @@ namespace RingtailDeployFeatureUtility
 
                         if (includeKeyRow)
                         {
-                            yield return keyAndDesc;
+                            yield return data;
                         }
                     }
                 }
             }
         }
+
+
+        public static bool WriteBuklLoadFeatureFile(string bulkLoadFilePath, List<string> featureKeyList, string defaultFileName=null)
+        {
+            
+            if (Directory.Exists(bulkLoadFilePath))
+            {
+                try
+                {
+                    FileAttributes attr = File.GetAttributes(bulkLoadFilePath);
+                    if (attr.HasFlag(FileAttributes.Directory))
+                    {
+                        // Its a directory path
+                        bulkLoadFilePath = Path.Combine(bulkLoadFilePath, defaultFileName);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error, file path invalid {0} - ", bulkLoadFilePath, e.Message);
+                    return false;
+                }
+            }
+
+         
+            var dateTimeStamp = DateTime.UtcNow.ToString();
+            try
+            {
+                using (var streamWriter = new StreamWriter(bulkLoadFilePath, false))
+                {
+                    foreach (var featureKey in featureKeyList)
+                    {
+                        streamWriter.WriteLine(string.Format("1, \"{0}\", \"{1}\", {2}", featureKey, featureKey, dateTimeStamp));
+                        streamWriter.Flush();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error writing bulk data file, {0}", e.Message);
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
