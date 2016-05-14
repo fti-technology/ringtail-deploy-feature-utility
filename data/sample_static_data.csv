@@ -1,5 +1,6 @@
 ﻿# RINGTAIL VERSION 8.6.012
-# Feature Key, Description, Type(PREVIEW,BETA,RC), Minor key
-"KEY1", "DESCRIPTION of Key1 - this is a preview and may not be dev complete", "PREVIEW", ""
-"KEY2", "DESCRIPTION of Key2 - this is dev complete, but not fully tested", "BETA", ""
-"KEY3", "DESCRIPTION of Key3 - ready for general release", "RC", "8.6.1002"
+"Feature Key","Description","Type(PREVIEW,BETA,RC)","Minor key"
+"Feature1","Some description of the feature goes here.","PREVIEW","8.5.000"
+"Feature2","Some description of the feature goes here.","RC","8.5.000"
+"Feature3","Some description of the feature goes here.","RC",""
+"Feature4","","BETA","8.6.200"
