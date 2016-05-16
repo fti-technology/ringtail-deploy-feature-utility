@@ -47,7 +47,7 @@ namespace RingtailDeployFeatureUtility
                 parser.HasFieldsEnclosedInQuotes = true;
 
                 // Skip over header line.
-                //parser.ReadLine();
+                parser.ReadLine();
                 while (!parser.EndOfData)
                 {
                     string[] fields = parser.ReadFields();
@@ -123,7 +123,6 @@ namespace RingtailDeployFeatureUtility
                 }
             }
 
-         
             var dateTimeStamp = DateTime.UtcNow.ToString();
             try
             {
@@ -137,7 +136,7 @@ namespace RingtailDeployFeatureUtility
                             _minorKey = "\"" + featureKey.MinorKey + "\"";
                         }
                         
-                        streamWriter.WriteLine(string.Format("1, \"{0}\", \"{1}\", {2}", featureKey.FeatureKey, _minorKey, dateTimeStamp));
+                        streamWriter.WriteLine(string.Format("1, \"{0}\", {1}, {2}", featureKey.FeatureKey, _minorKey, dateTimeStamp));
                         streamWriter.Flush();
                     }
                 }

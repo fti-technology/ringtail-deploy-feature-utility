@@ -112,7 +112,6 @@ namespace RingtailDeployFeatureUtility
                         }
                     }
 
-                    //Debugger.Launch();
                     List<KeyDataObjectBase> darkLaunchKeysList = serializer.Deserialize<List<KeyDataObjectBase>>(cmdLineOpts.darkLaunchKeys);
                     if (darkLaunchKeysList.Any())
                     {
