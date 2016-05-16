@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ namespace RingtailDeployFeatureUtility
         ////////////////////////////////////////////////////////////
         static int Main(string[] args)
         {
+
             var serializer = new JavaScriptSerializer();
 
             /////////////////////////////////////////////////////////////////////////////
@@ -96,7 +98,22 @@ namespace RingtailDeployFeatureUtility
             {
                 try
                 {
-                    List<string> darkLaunchKeysList = serializer.Deserialize<List<string>>(cmdLineOpts.darkLaunchKeys);
+                    if (cmdLineOpts.useBase64Encoding)
+                    {
+                        byte[] byteArray = Convert.FromBase64String(cmdLineOpts.darkLaunchKeys);
+                        cmdLineOpts.darkLaunchKeys = Encoding.UTF8.GetString(byteArray);
+                    }
+                    else
+                    {
+                        var formatedString = FormatKeysInputJson(args, cmdLineOpts.GetKeysCommandLine());
+                        if (!string.IsNullOrEmpty(formatedString))
+                        {
+                            cmdLineOpts.darkLaunchKeys = formatedString;
+                        }
+                    }
+
+                    //Debugger.Launch();
+                    List<KeyDataObjectBase> darkLaunchKeysList = serializer.Deserialize<List<KeyDataObjectBase>>(cmdLineOpts.darkLaunchKeys);
                     if (darkLaunchKeysList.Any())
                     {
                         if (!TextOperations.WriteBuklLoadFeatureFile(cmdLineOpts.pathToBulkDataKeyFile, darkLaunchKeysList, RingtailBulkDataFile))
@@ -130,6 +147,44 @@ namespace RingtailDeployFeatureUtility
             return 0;
         }
 
+        /// <summary>
+        /// Function responsible for cleaning up the json passed in on the command line 
+        /// becuase windows will remove and add quotes on the standard command line - thus go
+        /// to the Environment.CommandLine to get the properly formated string ( i.e. the exact string that is passed in )
+        /// Hack the JSon string off the Environment.CommandLine and return just that portion.
+        /// </summary>
+        /// <param name="args">command line args</param>
+        /// <param name="keysCommandLineToken">expects the command line token for the json keys data - i.e. -keys=</param>
+        /// <returns></returns>
+        private static string FormatKeysInputJson(string[] args, string keysCommandLineToken)
+        {
+            
+            if (args.Length > 0)
+            {
+
+                var keysIndex = Array.FindIndex(args, t => (t.StartsWith(keysCommandLineToken)));
+                if (keysIndex != -1)
+                {
+                    try
+                    {
+                        var fullKeysCommandLine = keysCommandLineToken + "\"";
+                        var xy = Environment.CommandLine;
+                        var startIndex = xy.IndexOf(fullKeysCommandLine);
+                        var endIndex = xy.IndexOf("]", startIndex);
+                        var keysData = xy.Substring(startIndex + fullKeysCommandLine.Length, endIndex - startIndex - keysCommandLineToken.Length);
+                        if (!string.IsNullOrEmpty(keysData))
+                            return keysData;                        
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Write("Error, {0} command line option could not be parsed into the proper JSON form: {1}", keysCommandLineToken, e.Message);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private static List<KeyDataObject> GenerateMockDarkLaunchKeysList()
         {
             var darkLaunchKeysList = new List<KeyDataObject>();
@@ -139,7 +194,12 @@ namespace RingtailDeployFeatureUtility
                 FeatureKey = "MockFeatureKey1",
                 MinorKey = ""
             });
-            darkLaunchKeysList.Add(new KeyDataObject {Description = "", FeatureKey = "MockFeatureKey2", MinorKey = "8.5.100"});
+            darkLaunchKeysList.Add(new KeyDataObject
+            {
+                Description = "",
+                FeatureKey = "MockFeatureKey2",
+                MinorKey = "8.5.100"
+            });
             darkLaunchKeysList.Add(new KeyDataObject
             {
                 Description = "this should turn on blah",
@@ -149,6 +209,33 @@ namespace RingtailDeployFeatureUtility
             darkLaunchKeysList.Add(new KeyDataObject
             {
                 Description = "description of this",
+                FeatureKey = "MockFeatureKey4",
+                MinorKey = "8.6.001"
+            });
+            return darkLaunchKeysList;
+        }
+
+        private static List<KeyDataObjectBase> GenerateMockDarkLaunchKeysListInput()
+        {
+            var darkLaunchKeysList = new List<KeyDataObjectBase>();
+            darkLaunchKeysList.Add(new KeyDataObjectBase
+            {
+
+                FeatureKey = "MockFeatureKey1",
+                MinorKey = ""
+            });
+            darkLaunchKeysList.Add(new KeyDataObjectBase
+            {
+                FeatureKey = "MockFeatureKey2",
+                MinorKey = "8.5.100"
+            });
+            darkLaunchKeysList.Add(new KeyDataObjectBase
+            {
+                FeatureKey = "MockFeatureKey3",
+                MinorKey = "8.6.001"
+            });
+            darkLaunchKeysList.Add(new KeyDataObjectBase
+            {
                 FeatureKey = "MockFeatureKey4",
                 MinorKey = "8.6.001"
             });
@@ -209,9 +296,14 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine("cmd>{0}.exe sqlfile=\"d:\\somepath\\myKeyfile.csv\" --filter=\"PREVIEW\"", exeName);
             Console.WriteLine();
 
-           // var keyExmple = "\"[{\"FeatureKey\":\"KEY3\",\"Description\":\"DESCRIPTION of Key3 - ready for general release\",\"MinorKey\":\"8.6.1002\"}]\"";
+            // var keyExmple = "\"[{\"FeatureKey\":\"KEY3\",\"Description\":\"DESCRIPTION of Key3 - ready for general release\",\"MinorKey\":\"8.6.1002\"}]\"";
+            Console.WriteLine("Create the bulk data file used for import into the database on a set of keys using a base64 endcoded string (preferred)");
+            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"W3sgIkZlYXR1cmVLZXkiOiJLRVkxIiwiTWlub3JLZXkiOiIifV0=\" /base64", exeName);
+            Console.WriteLine();
+
+
             Console.WriteLine("Create the bulk data file used for import into the database on a set of keys");
-            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"{1}\"", exeName, serializer.Serialize(GenerateMockDarkLaunchKeysList()));
+            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"{1}\"", exeName, serializer.Serialize(GenerateMockDarkLaunchKeysListInput()));
             Console.WriteLine();
         }
 

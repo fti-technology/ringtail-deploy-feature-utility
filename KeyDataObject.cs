@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace RingtailDeployFeatureUtility
 {
-    class KeyDataObject
+    class KeyDataObjectBase
     {
         public string FeatureKey { get; set; }
-        public string Description { get; set; }
         public string MinorKey { get; set; }
+    }
+
+    class KeyDataObject : KeyDataObjectBase
+    {
+        public string Description { get; set; }   
     }
 }

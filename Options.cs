@@ -800,7 +800,6 @@ namespace Mono.Options
             get { return roSources; }
         }
 
-
         protected override string GetKeyForItem(Option item)
         {
             if (item == null)

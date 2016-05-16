@@ -102,7 +102,7 @@ namespace RingtailDeployFeatureUtility
         }
 
 
-        public static bool WriteBuklLoadFeatureFile(string bulkLoadFilePath, List<string> featureKeyList, string defaultFileName=null)
+        public static bool WriteBuklLoadFeatureFile(string bulkLoadFilePath, List<KeyDataObjectBase> featureKeyList, string defaultFileName=null)
         {
             
             if (Directory.Exists(bulkLoadFilePath))
@@ -131,7 +131,13 @@ namespace RingtailDeployFeatureUtility
                 {
                     foreach (var featureKey in featureKeyList)
                     {
-                        streamWriter.WriteLine(string.Format("1, \"{0}\", \"{1}\", {2}", featureKey, featureKey, dateTimeStamp));
+                        var _minorKey = "null";
+                        if (!string.IsNullOrEmpty(featureKey.MinorKey))
+                        {
+                            _minorKey = "\"" + featureKey.MinorKey + "\"";
+                        }
+                        
+                        streamWriter.WriteLine(string.Format("1, \"{0}\", \"{1}\", {2}", featureKey.FeatureKey, _minorKey, dateTimeStamp));
                         streamWriter.Flush();
                     }
                 }
