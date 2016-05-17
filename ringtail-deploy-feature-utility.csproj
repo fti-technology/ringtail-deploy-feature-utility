@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLineOptions.cs" />
+    <Compile Include="DataBaseOperations.cs" />
     <Compile Include="KeyDataObject.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />

@@ -59,9 +59,22 @@ namespace RingtailDeployFeatureUtility
                 return 2;
             }
 
-            // Retrieve the keys from the static csv file and return them as a string in the a kvp Json form.
-            if ((!string.IsNullOrEmpty(cmdLineOpts.pathToSqlFile)) || (cmdLineOpts.useDefaultKeyFile))
+            if (!string.IsNullOrEmpty(cmdLineOpts.portalConnectionString))
             {
+                if (cmdLineOpts.useBase64Encoding)
+                {
+                    byte[] byteArray = Convert.FromBase64String(cmdLineOpts.portalConnectionString);
+                    cmdLineOpts.portalConnectionString = Encoding.UTF8.GetString(byteArray);
+                }
+
+                var ret = DataBaseOperations.DatabaseKeysExist(cmdLineOpts.portalConnectionString);
+                var serializedResult = serializer.Serialize(ret);
+                Console.WriteLine(serializedResult);
+                return 0;
+            }
+            else if ((!string.IsNullOrEmpty(cmdLineOpts.pathToSqlFile)) || (cmdLineOpts.useDefaultKeyFile))
+            {
+                // Retrieve the keys from the static csv file and return them as a string in the a kvp Json form.
                 string pathToFile;
                 if (cmdLineOpts.useDefaultKeyFile)
                 {
@@ -292,7 +305,7 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine();
 
             Console.WriteLine("Get the keys in JSON form from a specific file, with a filter");
-            Console.WriteLine("cmd>{0}.exe sqlfile=\"d:\\somepath\\myKeyfile.csv\" --filter=\"PREVIEW\"", exeName);
+            Console.WriteLine("cmd>{0}.exe --sqlfile=\"d:\\somepath\\myKeyfile.csv\" --filter=\"PREVIEW\"", exeName);
             Console.WriteLine();
 
             // var keyExmple = "\"[{\"FeatureKey\":\"KEY3\",\"Description\":\"DESCRIPTION of Key3 - ready for general release\",\"MinorKey\":\"8.6.1002\"}]\"";
@@ -304,6 +317,14 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine("Create the bulk data file used for import into the database on a set of keys");
             Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"{1}\"", exeName, serializer.Serialize(GenerateMockDarkLaunchKeysListInput()));
             Console.WriteLine();
+
+            Console.WriteLine("Query the specified portal database to determine if the keys have been commited, returns a true/false response.");
+            Console.WriteLine("Database connection string should be in this format: \"Data Source = (local);Initial Catalog = PortalBaseName;User id = UserName;Password = Secret;\"");
+            Console.WriteLine("cmd>{0}.exe --portalconnection=\"Data Source =192.168.1.2;Initial Catalog = MyPortal;User id = MyPortalUser;Password = abc123;\"", exeName);
+            Console.WriteLine("(OR)");
+            Console.WriteLine("cmd>{0}.exe --portalconnection=\"RGF0YSBTb3VyY2UgPTE5Mi4xNjguMS4yO0luaXRpYWwgQ2F0YWxvZyA9IE15UG9ydGFsO1VzZXIgaWQgPSBNeVBvcnRhbFVzZXI7UGFzc3dvcmQgPSBhYmMxMjM7\" /base64", exeName);
+
+
         }
 
     }
