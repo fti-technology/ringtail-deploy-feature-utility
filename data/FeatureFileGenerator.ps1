@@ -6,12 +6,19 @@
 # FEATUREKEYNAME_TYPE_MINORKEY.txt
 # The feature description should be a short summary placed inside the file itself.
 #
- 
-param([string]$CurrentDir)
-Write-Host "Currnet dir: " $CurrentDir
+param(
+[Parameter(Mandatory=$true)][string]$FeaturesFileDir,
+[Parameter(Mandatory=$true)][string]$OutPutDir
+)
+
+$OutPutDir = $OutPutDir.trimend("`"")
+
+Write-Host "Looking for feature files in : " $FeaturesFileDir
+Write-Host $OutPutDir
 $returnStatus = 0;
-$files = Get-ChildItem $CurrentDir -Filter *.txt
+$files = Get-ChildItem $FeaturesFileDir -Filter *.txt
 $csvContents = @()
+Write-Host "File found in directory: " + $files.Count
 for ($i=0; $i -lt $files.Count; $i++) {
     
     #get the file name
@@ -47,6 +54,8 @@ for ($i=0; $i -lt $files.Count; $i++) {
 }
 
 # export
-$csvContents | Export-csv ringtail-static-feature-data.csv -notypeinformation
+$ReportFile = [io.path]::combine($OutPutDir, "ringtail-static-feature-data.csv")
+Write-Host "Report being generated : " $ReportFile
+$csvContents | Export-csv $ReportFile -notypeinformation
 
 return $returnStatus
