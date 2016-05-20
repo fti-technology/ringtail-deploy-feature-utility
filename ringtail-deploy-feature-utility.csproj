@@ -53,7 +53,10 @@
   <ItemGroup>
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="DataBaseOperations.cs" />
+    <Compile Include="data\MockData.cs" />
+    <Compile Include="Help.cs" />
     <Compile Include="KeyDataObject.cs" />
+    <Compile Include="Operations.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

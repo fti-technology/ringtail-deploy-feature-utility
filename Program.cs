@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Mono.Options;
+using RingtailDeployFeatureUtility.data;
 
 namespace RingtailDeployFeatureUtility
 {
@@ -19,9 +20,6 @@ namespace RingtailDeployFeatureUtility
     /// </summary>
     class Program
     {
-        static string RingtailStaticKeyFile = "RingtailDarkKeys.csv";
-        static string RingtailBulkDataFile = "generated_feature_keys.txt";
-
         ////////////////////////////////////////////////////////////
         // Return codes:
         // 0 - success
@@ -30,22 +28,12 @@ namespace RingtailDeployFeatureUtility
         // 3 - static csv file not found or could not be read
         // 4 - error writing build data key file
         // 5 - key list deserialization error
+        // 6 - DB error
         ////////////////////////////////////////////////////////////
         static int Main(string[] args)
         {
 
             var serializer = new JavaScriptSerializer();
-
-            /////////////////////////////////////////////////////////////////////////////
-            // MODE 1 QUERY FOR OPTIONS
-            // Need Path to SQL or useDefaultKeyFile (looks next to exe for file)
-
-            // Mode 2 INSERT 
-            // Need Path to SQL
-            // Connection String
-            // KEYS
-            /////////////////////////////////////////////////////////////////////////////
-
 
             // command line options
             CommandLineOptions cmdLineOpts = new CommandLineOptions();
@@ -53,18 +41,21 @@ namespace RingtailDeployFeatureUtility
             List<string> extra;
             var commandLineWasProcessed = ProcessCommandLineOpts(args, cmdLineOpts);
 
+            // Show help if the option was passed or there was a problem processing command line args
             if (cmdLineOpts.show_help || !commandLineWasProcessed)
             {
-                ShowHelp(cmdLineOpts.optionSet, serializer);
+                Help.ShowHelp(cmdLineOpts.optionSet, serializer);
                 return 2;
             }
 
-            if (!string.IsNullOrEmpty(cmdLineOpts.portalConnectionString))
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Return true/false based on if the specified portal has had keys written to it already
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            if (!string.IsNullOrEmpty(cmdLineOpts.portalConnectionString) && cmdLineOpts.hasKeys)
             {
                 if (cmdLineOpts.useBase64Encoding)
                 {
-                    byte[] byteArray = Convert.FromBase64String(cmdLineOpts.portalConnectionString);
-                    cmdLineOpts.portalConnectionString = Encoding.UTF8.GetString(byteArray);
+                    cmdLineOpts.portalConnectionString = TextOperations.GetConnectionStringFromB64(cmdLineOpts.portalConnectionString);
                 }
 
                 var ret = DataBaseOperations.DatabaseKeysExist(cmdLineOpts.portalConnectionString);
@@ -72,79 +63,47 @@ namespace RingtailDeployFeatureUtility
                 Console.WriteLine(serializedResult);
                 return 0;
             }
-            else if ((!string.IsNullOrEmpty(cmdLineOpts.pathToSqlFile)) || (cmdLineOpts.useDefaultKeyFile))
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Retrieve the illuminated feature keys from the database  - return json keys list
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            if (!string.IsNullOrEmpty(cmdLineOpts.portalConnectionString) && cmdLineOpts.getfeaturekeys)
             {
-                // Retrieve the keys from the static csv file and return them as a string in the a kvp Json form.
-                string pathToFile;
-                if (cmdLineOpts.useDefaultKeyFile)
+                if (cmdLineOpts.useBase64Encoding)
                 {
-                    pathToFile = RingtailStaticKeyFile;
-                }
-                else
-                {
-                    pathToFile = cmdLineOpts.pathToSqlFile;
+                    cmdLineOpts.portalConnectionString = TextOperations.GetConnectionStringFromB64(cmdLineOpts.portalConnectionString);
                 }
 
-                if (!System.IO.File.Exists(pathToFile))
-                {
-                    Console.WriteLine("Error, static data file not found.");
-                    return 3;
-                }
-                
-                // Simple filtering based on type
-                KeyTypesFilter filterType = KeyTypesFilter.ALL;
-                if (!string.IsNullOrEmpty(cmdLineOpts.filter))
-                {
-                    if (!Enum.TryParse(cmdLineOpts.filter, true, out filterType))
-                    {
-                        filterType = KeyTypesFilter.ALL; // Default back to all if we go garbage
-                    }
-                }
-
-                // Parse the csv and serialize the results
-                var darkLaunchKeysList = TextOperations.ParseCSV(pathToFile, filterType);
-                var serializedResult = serializer.Serialize(darkLaunchKeysList);
+                List<string> featuresList;
+                var ret = DataBaseOperations.GetIlluminatedFeatures(cmdLineOpts.portalConnectionString, out featuresList);
+                var serializedResult = serializer.Serialize(featuresList);
                 Console.WriteLine(serializedResult);
-                return 0;
+                return ret;
             }
-            else if ((!string.IsNullOrEmpty(cmdLineOpts.pathToBulkDataKeyFile)) && (!string.IsNullOrEmpty(cmdLineOpts.darkLaunchKeys)))
+
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Retrieve the keys from the static csv file and return them as a string in the a kvp Json form.
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            if ((!string.IsNullOrEmpty(cmdLineOpts.pathToSqlFile)) || (cmdLineOpts.useDefaultKeyFile))
             {
-                try
-                {
-                    if (cmdLineOpts.useBase64Encoding)
-                    {
-                        byte[] byteArray = Convert.FromBase64String(cmdLineOpts.darkLaunchKeys);
-                        cmdLineOpts.darkLaunchKeys = Encoding.UTF8.GetString(byteArray);
-                    }
-                    else
-                    {
-                        var formatedString = FormatKeysInputJson(args, cmdLineOpts.GetKeysCommandLine());
-                        if (!string.IsNullOrEmpty(formatedString))
-                        {
-                            cmdLineOpts.darkLaunchKeys = formatedString;
-                        }
-                    }
+                string serializedResult;
+                int ret = Operations.HandleStaticSqlFile(cmdLineOpts, serializer, out serializedResult);
+                Console.WriteLine(serializedResult);
+                return ret;
+            }
 
-                    List<KeyDataObjectBase> darkLaunchKeysList = serializer.Deserialize<List<KeyDataObjectBase>>(cmdLineOpts.darkLaunchKeys);
-                    if (darkLaunchKeysList.Any())
-                    {
-                        if (!TextOperations.WriteBuklLoadFeatureFile(cmdLineOpts.pathToBulkDataKeyFile, darkLaunchKeysList, RingtailBulkDataFile))
-                            return 4;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.Write("Error, key list could not be deserialized: ", e.Message);
-                    return 5;
-                }
-                
-
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Generate bulk load data file for insertion into database based on selected feature keys
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            if ((!string.IsNullOrEmpty(cmdLineOpts.pathToBulkDataKeyFile)) && (!string.IsNullOrEmpty(cmdLineOpts.darkLaunchKeys)))
+            {
+                return Operations.WriteBuklLoadFeatureFile(args, cmdLineOpts, serializer);
             }
             else if (cmdLineOpts.testMode && (string.IsNullOrEmpty(cmdLineOpts.darkLaunchKeys)))
             {
                 // Simple mode used for testing
-                var darkLaunchKeysList = GenerateMockDarkLaunchKeysList();
-
+                var darkLaunchKeysList = MockData.GenerateMockDarkLaunchKeysList();
                 var serializedResult = serializer.Serialize(darkLaunchKeysList);
                 Console.WriteLine(serializedResult);
 
@@ -152,106 +111,9 @@ namespace RingtailDeployFeatureUtility
             }
             else
             {
-                ShowHelp(cmdLineOpts.optionSet, serializer);
+                Help.ShowHelp(cmdLineOpts.optionSet, serializer);
                 return 0;
             }
-
-            return 0;
-        }
-
-        /// <summary>
-        /// Function responsible for cleaning up the json passed in on the command line 
-        /// becuase windows will remove and add quotes on the standard command line - thus go
-        /// to the Environment.CommandLine to get the properly formated string ( i.e. the exact string that is passed in )
-        /// Hack the JSon string off the Environment.CommandLine and return just that portion.
-        /// </summary>
-        /// <param name="args">command line args</param>
-        /// <param name="keysCommandLineToken">expects the command line token for the json keys data - i.e. -keys=</param>
-        /// <returns></returns>
-        private static string FormatKeysInputJson(string[] args, string keysCommandLineToken)
-        {
-            
-            if (args.Length > 0)
-            {
-
-                var keysIndex = Array.FindIndex(args, t => (t.StartsWith(keysCommandLineToken)));
-                if (keysIndex != -1)
-                {
-                    try
-                    {
-                        var fullKeysCommandLine = keysCommandLineToken + "\"";
-                        var xy = Environment.CommandLine;
-                        var startIndex = xy.IndexOf(fullKeysCommandLine);
-                        var endIndex = xy.IndexOf("]", startIndex);
-                        var keysData = xy.Substring(startIndex + fullKeysCommandLine.Length, endIndex - startIndex - keysCommandLineToken.Length);
-                        if (!string.IsNullOrEmpty(keysData))
-                            return keysData;                        
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Write("Error, {0} command line option could not be parsed into the proper JSON form: {1}", keysCommandLineToken, e.Message);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private static List<KeyDataObject> GenerateMockDarkLaunchKeysList()
-        {
-            var darkLaunchKeysList = new List<KeyDataObject>();
-            darkLaunchKeysList.Add(new KeyDataObject
-            {
-                Description = "some description",
-                FeatureKey = "MockFeatureKey1",
-                MinorKey = ""
-            });
-            darkLaunchKeysList.Add(new KeyDataObject
-            {
-                Description = "",
-                FeatureKey = "MockFeatureKey2",
-                MinorKey = "8.5.100"
-            });
-            darkLaunchKeysList.Add(new KeyDataObject
-            {
-                Description = "this should turn on blah",
-                FeatureKey = "MockFeatureKey3",
-                MinorKey = "8.6.001"
-            });
-            darkLaunchKeysList.Add(new KeyDataObject
-            {
-                Description = "description of this",
-                FeatureKey = "MockFeatureKey4",
-                MinorKey = "8.6.001"
-            });
-            return darkLaunchKeysList;
-        }
-
-        private static List<KeyDataObjectBase> GenerateMockDarkLaunchKeysListInput()
-        {
-            var darkLaunchKeysList = new List<KeyDataObjectBase>();
-            darkLaunchKeysList.Add(new KeyDataObjectBase
-            {
-
-                FeatureKey = "MockFeatureKey1",
-                MinorKey = ""
-            });
-            darkLaunchKeysList.Add(new KeyDataObjectBase
-            {
-                FeatureKey = "MockFeatureKey2",
-                MinorKey = "8.5.100"
-            });
-            darkLaunchKeysList.Add(new KeyDataObjectBase
-            {
-                FeatureKey = "MockFeatureKey3",
-                MinorKey = "8.6.001"
-            });
-            darkLaunchKeysList.Add(new KeyDataObjectBase
-            {
-                FeatureKey = "MockFeatureKey4",
-                MinorKey = "8.6.001"
-            });
-            return darkLaunchKeysList;
         }
 
         /// <summary>
@@ -283,49 +145,5 @@ namespace RingtailDeployFeatureUtility
 
             return true;
         }
-
-
-        /// <summary>
-        /// Help message
-        /// </summary>
-        /// <param name="p"></param>
-        static void ShowHelp(OptionSet p, JavaScriptSerializer serializer)
-        {
-            var exeName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-            Console.WriteLine("Usage: {0} [OPTIONS]+ message", exeName);
-            Console.WriteLine("Queries for the available Ringtail feature strings and also generates a bulk data file for database import.");
-            Console.WriteLine();
-            Console.WriteLine("Options:");
-            p.WriteOptionDescriptions(Console.Out);
-            Console.WriteLine();
-
-            Console.WriteLine("Typical usage");
-            Console.WriteLine("Get the keys in JSON form from the default file, assuming {0} is next to {1}", RingtailStaticKeyFile, exeName);
-            Console.WriteLine("cmd>{0}.exe --getkeys", exeName);
-            Console.WriteLine();
-
-            Console.WriteLine("Get the keys in JSON form from a specific file, with a filter");
-            Console.WriteLine("cmd>{0}.exe --sqlfile=\"d:\\somepath\\myKeyfile.csv\" --filter=\"PREVIEW\"", exeName);
-            Console.WriteLine();
-
-            // var keyExmple = "\"[{\"FeatureKey\":\"KEY3\",\"Description\":\"DESCRIPTION of Key3 - ready for general release\",\"MinorKey\":\"8.6.1002\"}]\"";
-            Console.WriteLine("Create the bulk data file used for import into the database on a set of keys using a base64 endcoded string (preferred)");
-            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"W3sgIkZlYXR1cmVLZXkiOiJLRVkxIiwiTWlub3JLZXkiOiIifV0=\" /base64", exeName);
-            Console.WriteLine();
-
-
-            Console.WriteLine("Create the bulk data file used for import into the database on a set of keys");
-            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"{1}\"", exeName, serializer.Serialize(GenerateMockDarkLaunchKeysListInput()));
-            Console.WriteLine();
-
-            Console.WriteLine("Query the specified portal database to determine if the keys have been commited, returns a true/false response.");
-            Console.WriteLine("Database connection string should be in this format: \"Data Source = (local);Initial Catalog = PortalBaseName;User id = UserName;Password = Secret;\"");
-            Console.WriteLine("cmd>{0}.exe --portalconnection=\"Data Source =192.168.1.2;Initial Catalog = MyPortal;User id = MyPortalUser;Password = abc123;\"", exeName);
-            Console.WriteLine("(OR)");
-            Console.WriteLine("cmd>{0}.exe --portalconnection=\"RGF0YSBTb3VyY2UgPTE5Mi4xNjguMS4yO0luaXRpYWwgQ2F0YWxvZyA9IE15UG9ydGFsO1VzZXIgaWQgPSBNeVBvcnRhbFVzZXI7UGFzc3dvcmQgPSBhYmMxMjM7\" /base64", exeName);
-
-
-        }
-
     }
 }

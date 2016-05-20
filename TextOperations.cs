@@ -32,6 +32,18 @@ namespace RingtailDeployFeatureUtility
         // if RC keys are allowed, allow only RC
         private static KeyTypesFilter RC_KEYS = KeyTypesFilter.RC;
 
+
+        /// <summary>
+        /// Decode Base64/UTF8 connection string
+        /// </summary>
+        /// <param name="portalConnectionString"></param>
+        /// <returns></returns>
+        public static string GetConnectionStringFromB64(string portalConnectionString)
+        {
+            byte[] byteArray = Convert.FromBase64String(portalConnectionString);
+            return Encoding.UTF8.GetString(byteArray);
+        }
+
         /// <summary>
         /// Parse the static CSV keys file and return a list of keys and descriptions based on the filter and rules
         /// </summary>

@@ -9,6 +9,40 @@ namespace RingtailDeployFeatureUtility
 {
     class DataBaseOperations
     {
+
+        public static int GetIlluminatedFeatures(string connectionString, out List<string> featureList)
+        {
+            featureList = new List<string>();
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+
+                    con.Open();
+
+                    using (SqlCommand command =new SqlCommand("SELECT feature_key FROM dbo.featureset_list", con))
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                featureList.Add(reader.GetString(reader.GetOrdinal("feature_key")));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error, connecting to database: {0}", e.Message);
+                return 6;
+            }
+
+            return 0;
+        }
+
         // "Data Source=ServerName;" + "Initial Catalog=DataBaseName;" +"User id=UserName;" + "Password=Secret;";
         public static bool DatabaseKeysExist(string connectionString)
         {
@@ -16,8 +50,6 @@ namespace RingtailDeployFeatureUtility
             string ringtailApplicationVersion = null;
             try
             {
-
-
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
 
