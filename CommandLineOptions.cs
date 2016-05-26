@@ -19,7 +19,7 @@ class CommandLineOptions
         show_help = false; 
         pathToSqlFile = null;
         pathToBulkDataKeyFile = null;
-        darkLaunchKeys = null;
+        featureLaunchKeys = null;
         testMode = false;
         useDefaultKeyFile = false;
         filter = null;
@@ -27,6 +27,7 @@ class CommandLineOptions
         portalConnectionString = null;
         hasKeys = false;
         getfeaturekeys = false;
+        featureLaunchKeysPath = null;
         optionSetValue = new OptionSet()
             {
                     {"s|sqlfile=", "path to static sql file.", v => pathToSqlFile = v},
@@ -35,7 +36,8 @@ class CommandLineOptions
                     {"gf|getfeaturekeys", "attempts to retrieve illuminated feature keys in the database - (needs portalconnection string)",v => getfeaturekeys = v != null},
                     {"hk|haskeys", "determines if the feature keys have been written for the current application version - (needs portalconnection string)",v => hasKeys = v != null},
                     {"b|bulkdatapath=", "path to generate the build data key file used for importing the key data into the database",v => pathToBulkDataKeyFile = v},
-                    {keysCommandLine,"the keys to commit to the database (Json list), see usage sample for JSon input form",v => darkLaunchKeys = v},
+                    {keysCommandLine,"the keys to commit to the database (Json list), see usage sample for JSon input form",v => featureLaunchKeys = v},
+                    {"keysfile=","(place keys in file and specificy file path) the keys to commit to the database (Json list), see usage sample for JSon input form",v => featureLaunchKeysPath = v},
                     { "base64", "set this option to indicate that the keys input data or portalconnection is base64 encoded", v => useBase64Encoding = v!=null},
                     { "p|portalconnection=", "pass the full connection string to the portal db to query on", v => portalConnectionString = v },
 #if DEBUG
@@ -55,7 +57,8 @@ class CommandLineOptions
     public string pathToSqlFile { get; set; }
     public string portalConnectionString { get; set; }
     public string pathToBulkDataKeyFile { get; set; }
-    public string darkLaunchKeys { get; set; }
+    public string featureLaunchKeys { get; set; }
+    public string featureLaunchKeysPath { get; set; }
     public bool testMode { get; set; }
     public bool useDefaultKeyFile { get; set; }
     public string filter { get; set; }

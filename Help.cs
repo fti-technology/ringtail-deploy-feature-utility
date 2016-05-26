@@ -41,7 +41,7 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine();
 
             Console.WriteLine("Create the bulk data file used for import into the database on a set of keys");
-            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"{1}\"", exeName, serializer.Serialize(MockData.GenerateMockDarkLaunchKeysListInput()));
+            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keys=\"{1}\"", exeName, serializer.Serialize(MockData.GenerateMockFeatureLaunchKeysList()));
             Console.WriteLine();
 
             Console.WriteLine("Query the specified portal database to determine if the keys have been commited, returns a true/false response.");
@@ -55,6 +55,10 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine("cmd>{0}.exe /getfeaturekeys --portalconnection=\"Data Source =192.168.1.2;Initial Catalog = MyPortal;User id = MyPortalUser;Password = abc123;\"", exeName);
             Console.WriteLine("(OR)");
             Console.WriteLine("cmd>{0}.exe /getfeaturekeys --portalconnection=\"RGF0YSBTb3VyY2UgPTE5Mi4xNjguMS4yO0luaXRpYWwgQ2F0YWxvZyA9IE15UG9ydGFsO1VzZXIgaWQgPSBNeVBvcnRhbFVzZXI7UGFzc3dvcmQgPSBhYmMxMjM7\" /base64", exeName);
+            Console.WriteLine("(OR)");
+            Console.WriteLine("Create the bulk data file used for import into the database on a set of keys using file that contains key data.");
+            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keysfile==\"{1}\"", exeName, @"D:\myKeysFile.json");
+            Console.WriteLine();
 
         }
     }

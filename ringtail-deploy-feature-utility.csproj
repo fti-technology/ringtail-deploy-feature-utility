@@ -64,10 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="data\SampleFeatureKeysInput.json" />
     <None Include="data\sample_static_data.csv" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="data\scratch.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

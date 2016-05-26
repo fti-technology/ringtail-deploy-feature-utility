@@ -8,61 +8,61 @@ namespace RingtailDeployFeatureUtility.data
 {
     class MockData
     {
-        internal static List<KeyDataObject> GenerateMockDarkLaunchKeysList()
+        internal static List<KeyDataObject> GenerateMockFeatureLaunchKeysList()
         {
-            var darkLaunchKeysList = new List<KeyDataObject>();
-            darkLaunchKeysList.Add(new KeyDataObject
+            var featureLaunchKeysList = new List<KeyDataObject>();
+            featureLaunchKeysList.Add(new KeyDataObject
             {
                 Description = "some description",
                 FeatureKey = "MockFeatureKey1",
                 MinorKey = ""
             });
-            darkLaunchKeysList.Add(new KeyDataObject
+            featureLaunchKeysList.Add(new KeyDataObject
             {
                 Description = "",
                 FeatureKey = "MockFeatureKey2",
                 MinorKey = "8.5.100"
             });
-            darkLaunchKeysList.Add(new KeyDataObject
+            featureLaunchKeysList.Add(new KeyDataObject
             {
                 Description = "this should turn on blah",
                 FeatureKey = "MockFeatureKey3",
                 MinorKey = "8.6.001"
             });
-            darkLaunchKeysList.Add(new KeyDataObject
+            featureLaunchKeysList.Add(new KeyDataObject
             {
                 Description = "description of this",
                 FeatureKey = "MockFeatureKey4",
                 MinorKey = "8.6.001"
             });
-            return darkLaunchKeysList;
+            return featureLaunchKeysList;
         }
 
-        internal static List<KeyDataObjectBase> GenerateMockDarkLaunchKeysListInput()
+        internal static List<KeyDataObjectBase> GenerateMockFeatureLaunchKeysListInput()
         {
-            var darkLaunchKeysList = new List<KeyDataObjectBase>();
-            darkLaunchKeysList.Add(new KeyDataObjectBase
+            var featureLaunchKeysList = new List<KeyDataObjectBase>();
+            featureLaunchKeysList.Add(new KeyDataObjectBase
             {
 
                 FeatureKey = "MockFeatureKey1",
                 MinorKey = ""
             });
-            darkLaunchKeysList.Add(new KeyDataObjectBase
+            featureLaunchKeysList.Add(new KeyDataObjectBase
             {
                 FeatureKey = "MockFeatureKey2",
                 MinorKey = "8.5.100"
             });
-            darkLaunchKeysList.Add(new KeyDataObjectBase
+            featureLaunchKeysList.Add(new KeyDataObjectBase
             {
                 FeatureKey = "MockFeatureKey3",
                 MinorKey = "8.6.001"
             });
-            darkLaunchKeysList.Add(new KeyDataObjectBase
+            featureLaunchKeysList.Add(new KeyDataObjectBase
             {
                 FeatureKey = "MockFeatureKey4",
                 MinorKey = "8.6.001"
             });
-            return darkLaunchKeysList;
+            return featureLaunchKeysList;
         }
     }
 }

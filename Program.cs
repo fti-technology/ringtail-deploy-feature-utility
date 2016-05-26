@@ -33,6 +33,9 @@ namespace RingtailDeployFeatureUtility
         static int Main(string[] args)
         {
 
+#if DEBUG
+            Debugger.Launch();
+#endif
             var serializer = new JavaScriptSerializer();
 
             // command line options
@@ -96,14 +99,14 @@ namespace RingtailDeployFeatureUtility
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // Generate bulk load data file for insertion into database based on selected feature keys
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            if ((!string.IsNullOrEmpty(cmdLineOpts.pathToBulkDataKeyFile)) && (!string.IsNullOrEmpty(cmdLineOpts.darkLaunchKeys)))
+            if ((!string.IsNullOrEmpty(cmdLineOpts.pathToBulkDataKeyFile)) && (!string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeys) || !string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeysPath)))
             {
                 return Operations.WriteBuklLoadFeatureFile(args, cmdLineOpts, serializer);
             }
-            else if (cmdLineOpts.testMode && (string.IsNullOrEmpty(cmdLineOpts.darkLaunchKeys)))
+            else if (cmdLineOpts.testMode && (string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeys)))
             {
                 // Simple mode used for testing
-                var darkLaunchKeysList = MockData.GenerateMockDarkLaunchKeysList();
+                var darkLaunchKeysList = MockData.GenerateMockFeatureLaunchKeysList();
                 var serializedResult = serializer.Serialize(darkLaunchKeysList);
                 Console.WriteLine(serializedResult);
 

@@ -1,8 +1,0 @@
-﻿
-// Stores the current illuminated features
-create table dbo.feature_table (
-	variable_id int identity not null,
-	launch_key varchar(255) not null primary key,
-	minor_key varchar(100) null,
-	[date_added] [datetime] not null
-)

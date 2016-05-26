@@ -114,7 +114,15 @@ namespace RingtailDeployFeatureUtility
         }
 
 
-        public static bool WriteBuklLoadFeatureFile(string bulkLoadFilePath, List<KeyDataObjectBase> featureKeyList, string defaultFileName=null)
+        /// <summary>
+        /// Write out bulk data load file that is used with sql "bulk insert"
+        /// to insert the keys into the database.
+        /// </summary>
+        /// <param name="bulkLoadFilePath"></param>
+        /// <param name="featureKeyList"></param>
+        /// <param name="defaultFileName"></param>
+        /// <returns></returns>
+        public static bool WriteBuklLoadFeatureFile(string bulkLoadFilePath, List<KeyDataObject> featureKeyList, string defaultFileName=null)
         {
             
             if (Directory.Exists(bulkLoadFilePath))
@@ -148,7 +156,7 @@ namespace RingtailDeployFeatureUtility
                             _minorKey = "\"" + featureKey.MinorKey + "\"";
                         }
                         
-                        streamWriter.WriteLine(string.Format("1, \"{0}\", {1}, {2}", featureKey.FeatureKey, _minorKey, dateTimeStamp));
+                        streamWriter.WriteLine(string.Format("1, \"{0}\", {1}, {2}, \"{3}\"", featureKey.FeatureKey, _minorKey, dateTimeStamp, featureKey.Description));
                         streamWriter.Flush();
                     }
                 }

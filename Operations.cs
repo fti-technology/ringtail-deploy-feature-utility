@@ -62,21 +62,42 @@ namespace RingtailDeployFeatureUtility
         {
             try
             {
-                if (cmdLineOpts.useBase64Encoding)
+                if (!string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeysPath))
                 {
-                    byte[] byteArray = Convert.FromBase64String(cmdLineOpts.darkLaunchKeys);
-                    cmdLineOpts.darkLaunchKeys = Encoding.UTF8.GetString(byteArray);
+                    if (System.IO.File.Exists(cmdLineOpts.featureLaunchKeysPath))
+                    {
+                        try
+                        {
+                            cmdLineOpts.featureLaunchKeys = File.ReadAllText(cmdLineOpts.featureLaunchKeysPath);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.Write("Error, key list file could not be read: ", e.Message);
+                            cmdLineOpts.featureLaunchKeys = null;
+                        }
+                    }
+                    else
+                    {
+                        Console.Write("Error, key list file not found at: ", cmdLineOpts.featureLaunchKeysPath);
+                        cmdLineOpts.featureLaunchKeys = null;
+                    }
+                    
+                }
+                else if (cmdLineOpts.useBase64Encoding)
+                {
+                    byte[] byteArray = Convert.FromBase64String(cmdLineOpts.featureLaunchKeys);
+                    cmdLineOpts.featureLaunchKeys = Encoding.UTF8.GetString(byteArray);
                 }
                 else
                 {
                     var formatedString = FormatKeysInputJson(args, cmdLineOpts.GetKeysCommandLine());
                     if (!string.IsNullOrEmpty(formatedString))
                     {
-                        cmdLineOpts.darkLaunchKeys = formatedString;
+                        cmdLineOpts.featureLaunchKeys = formatedString;
                     }
                 }
 
-                List<KeyDataObjectBase> darkLaunchKeysList = serializer.Deserialize<List<KeyDataObjectBase>>(cmdLineOpts.darkLaunchKeys);
+                List<KeyDataObject> darkLaunchKeysList = serializer.Deserialize<List<KeyDataObject>>(cmdLineOpts.featureLaunchKeys);
                 if (darkLaunchKeysList.Any())
                 {
                     if (!TextOperations.WriteBuklLoadFeatureFile(cmdLineOpts.pathToBulkDataKeyFile, darkLaunchKeysList,RingtailBulkDataFile))
