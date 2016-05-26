@@ -10,7 +10,7 @@ namespace RingtailDeployFeatureUtility
 {
     class Operations
     {
-        public static string RingtailStaticKeyFile = "RingtailDarkKeys.csv";
+        public static string RingtailStaticKeyFile = "ringtail-static-feature-data.csv";
         public static string RingtailBulkDataFile = "generated_feature_keys.txt";
 
         /// <summary>
