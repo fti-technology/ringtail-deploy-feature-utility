@@ -153,10 +153,15 @@ namespace RingtailDeployFeatureUtility
                         var _minorKey = "null";
                         if (!string.IsNullOrEmpty(featureKey.MinorKey))
                         {
-                            _minorKey = "\"" + featureKey.MinorKey + "\"";
+                            _minorKey = featureKey.MinorKey;
+                        }
+                        var _description = "null";
+                        if (!string.IsNullOrEmpty(featureKey.Description))
+                        {
+                            _description = featureKey.Description;
                         }
                         
-                        streamWriter.WriteLine(string.Format("1, \"{0}\", {1}, {2}, \"{3}\"", featureKey.FeatureKey, _minorKey, dateTimeStamp, featureKey.Description));
+                        streamWriter.WriteLine(string.Format("1,{0},{1},{2},{3}", featureKey.FeatureKey, _minorKey, dateTimeStamp, _description));
                         streamWriter.Flush();
                     }
                 }
