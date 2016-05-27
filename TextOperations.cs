@@ -143,7 +143,9 @@ namespace RingtailDeployFeatureUtility
                 }
             }
 
-            var dateTimeStamp = DateTime.UtcNow.ToString();
+            string format = "yyyy-MM-dd HH:mm:ss";
+            var dateTimeStamp = DateTime.UtcNow.ToString(format);
+           
             try
             {
                 using (var streamWriter = new StreamWriter(bulkLoadFilePath, false))
