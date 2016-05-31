@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.VisualBasic.FileIO;
 using System.Text;
 using System.IO;
+using System.Linq;
 
 namespace RingtailDeployFeatureUtility
 {
@@ -58,6 +59,11 @@ namespace RingtailDeployFeatureUtility
         /// <returns>List of KeyDataObject</returns>
         public static IEnumerable<KeyDataObject> ParseCSV(string path, KeyTypesFilter keyFilter = KeyTypesFilter.ALL)
         {
+            if (!File.Exists(path))
+            {
+                yield break;
+            }
+
             using (TextFieldParser parser = new TextFieldParser(path))
             {
                 parser.CommentTokens = new string[] { "#" };
@@ -108,7 +114,7 @@ namespace RingtailDeployFeatureUtility
                                 }
                                 else if (keyFilter.HasFlag(KeyTypesFilter.PreAlpha))
                                 {
-                                    includeKeyRow = includeInGA;
+                                    includeKeyRow = includeInPreAlpha;
                                 }
                             }
                         }
