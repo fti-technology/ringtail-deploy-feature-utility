@@ -13,10 +13,11 @@ namespace RingtailDeployFeatureUtility
     [Flags]
     public enum KeyTypesFilter
     {
-        PREVIEW = 1,
-        BETA = 2,
-        RC = 4,
-        ALL = PREVIEW | BETA | RC
+        PreAlpha = 1,
+        Alpha = 2,
+        Beta = 4,
+        GA = 8,
+        ALL = PreAlpha | Alpha | Beta | GA
     }
 
 
@@ -26,11 +27,16 @@ namespace RingtailDeployFeatureUtility
     class TextOperations
     {
         // if preview keys are allowed, allow all types
-        private static KeyTypesFilter PREVIEW_KEYS = KeyTypesFilter.RC | KeyTypesFilter.BETA | KeyTypesFilter.PREVIEW;
+        private static KeyTypesFilter PREALPHA_KEYS = KeyTypesFilter.PreAlpha | KeyTypesFilter.Alpha | KeyTypesFilter.Beta | KeyTypesFilter.GA;
+
+        // Preview shows GA, Beta, and alpha
+        private static KeyTypesFilter PREVIEW_KEYS = KeyTypesFilter.GA | KeyTypesFilter.Beta | KeyTypesFilter.Alpha;
+
         // if BETA KEYS are allowed, allow RC and BETA types
-        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.RC | KeyTypesFilter.BETA;
+        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.GA | KeyTypesFilter.Beta;
+
         // if RC keys are allowed, allow only RC
-        private static KeyTypesFilter RC_KEYS = KeyTypesFilter.RC;
+        private static KeyTypesFilter RC_KEYS = KeyTypesFilter.GA;
 
 
         /// <summary>
@@ -47,9 +53,9 @@ namespace RingtailDeployFeatureUtility
         /// <summary>
         /// Parse the static CSV keys file and return a list of keys and descriptions based on the filter and rules
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="keyFilter"></param>
-        /// <returns></returns>
+        /// <param name="path">full path to csv file to operate on</param>
+        /// <param name="keyFilter">Filter target</param>
+        /// <returns>List of KeyDataObject</returns>
         public static IEnumerable<KeyDataObject> ParseCSV(string path, KeyTypesFilter keyFilter = KeyTypesFilter.ALL)
         {
             using (TextFieldParser parser = new TextFieldParser(path))
@@ -80,25 +86,29 @@ namespace RingtailDeployFeatureUtility
                         }
                         else
                         {
-
                             KeyTypesFilter rowKeyType;
                             if (Enum.TryParse(fields[2], true, out rowKeyType))
                             {
                                 bool includeInPreview = PREVIEW_KEYS.HasFlag(rowKeyType);
                                 bool includeInBeta = BETA_KEYS.HasFlag(rowKeyType);
-                                bool includeInRc = RC_KEYS.HasFlag(rowKeyType);
+                                bool includeInPreAlpha = PREALPHA_KEYS.HasFlag(rowKeyType);
+                                bool includeInGA = RC_KEYS.HasFlag(rowKeyType);
 
-                                if (keyFilter.HasFlag(KeyTypesFilter.RC))
+                                if (keyFilter.HasFlag(KeyTypesFilter.GA))
                                 {
-                                    includeKeyRow = includeInRc;
+                                    includeKeyRow = includeInGA;
                                 }
-                                else if (keyFilter.HasFlag(KeyTypesFilter.BETA))
+                                else if (keyFilter.HasFlag(KeyTypesFilter.Beta))
                                 {
                                     includeKeyRow = includeInBeta;
                                 }
-                                else if (keyFilter.HasFlag(KeyTypesFilter.PREVIEW))
+                                else if (keyFilter.HasFlag(KeyTypesFilter.Alpha))
                                 {
                                     includeKeyRow = includeInPreview;
+                                }
+                                else if (keyFilter.HasFlag(KeyTypesFilter.PreAlpha))
+                                {
+                                    includeKeyRow = includeInGA;
                                 }
                             }
                         }
