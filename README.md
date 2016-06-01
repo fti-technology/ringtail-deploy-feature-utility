@@ -16,6 +16,4 @@ Can insert keys provided to it into a Ringtail database.
 
 ### Setting Keys
 
-    // keyExmple: [{"FeatureKey":"KEY3","Description":"Some exmaple key","MinorKey":"8.6.1002"}]
-    // keys are base64 encoded JSON
-    ringtail-deploy-feature-utility --bulkdatapath=="C:\pathToSqlComponents" --keys="your keys" /base64
+    ringtail-deploy-feature-utility --bulkdatapath="C:\pathToSqlComponents" --keysfile="your keys.json" /base64
