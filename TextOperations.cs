@@ -14,12 +14,13 @@ namespace RingtailDeployFeatureUtility
     [Flags]
     public enum KeyTypesFilter
     {
-        PreAlpha = 1,
+        Development = 1,
         Alpha = 2,
         Beta = 4,
         GA = 8,
-        ALL = PreAlpha | Alpha | Beta | GA
+        ALL = Development | Alpha | Beta | GA
     }
+
 
 
     /// <summary>
@@ -28,13 +29,10 @@ namespace RingtailDeployFeatureUtility
     class TextOperations
     {
         // if preview keys are allowed, allow all types
-        private static KeyTypesFilter PREALPHA_KEYS = KeyTypesFilter.PreAlpha | KeyTypesFilter.Alpha | KeyTypesFilter.Beta | KeyTypesFilter.GA;
+        private static KeyTypesFilter DEVELOPMENT_KEYS = KeyTypesFilter.Development | KeyTypesFilter.Alpha | KeyTypesFilter.Beta | KeyTypesFilter.GA;
 
         // Preview shows GA, Beta, and alpha
-        private static KeyTypesFilter PREVIEW_KEYS = KeyTypesFilter.GA | KeyTypesFilter.Beta | KeyTypesFilter.Alpha;
-
-        // if BETA KEYS are allowed, allow RC and BETA types
-        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.GA | KeyTypesFilter.Beta;
+        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.GA | KeyTypesFilter.Beta | KeyTypesFilter.Alpha;
 
         // if RC keys are allowed, allow only RC
         private static KeyTypesFilter RC_KEYS = KeyTypesFilter.GA;
@@ -82,41 +80,40 @@ namespace RingtailDeployFeatureUtility
                         {
                             Description = fields[1],
                             FeatureKey = fields[0],
-                            MinorKey = fields[3]
+                            MinorKey = fields[3],
+                            KeyType = fields[2]
                         };
                         
                         bool includeKeyRow = false;
+                        KeyTypesFilter rowKeyType;
+                        if (Enum.TryParse(fields[2], true, out rowKeyType))
+                        {
+                            bool includeInBeta = BETA_KEYS.HasFlag(rowKeyType);
+                            bool includeInPreAlpha = DEVELOPMENT_KEYS.HasFlag(rowKeyType);
+                            bool includeInGA = RC_KEYS.HasFlag(rowKeyType);
+
+                            if (keyFilter.HasFlag(KeyTypesFilter.GA))
+                            {
+                                includeKeyRow = includeInGA;
+                            }
+                            else if (keyFilter.HasFlag(KeyTypesFilter.Beta))
+                            {
+                                includeKeyRow = includeInBeta;
+                            }
+                            else if (keyFilter.HasFlag(KeyTypesFilter.Development))
+                            {
+                                includeKeyRow = includeInPreAlpha;
+                            }
+                            else
+                            {
+                                includeKeyRow = includeInPreAlpha;  // No key, show only in development mode
+                            }
+                        }
+
+                        // Ignore type and include
                         if (keyFilter == KeyTypesFilter.ALL)
                         {
                             includeKeyRow = true;
-                        }
-                        else
-                        {
-                            KeyTypesFilter rowKeyType;
-                            if (Enum.TryParse(fields[2], true, out rowKeyType))
-                            {
-                                bool includeInPreview = PREVIEW_KEYS.HasFlag(rowKeyType);
-                                bool includeInBeta = BETA_KEYS.HasFlag(rowKeyType);
-                                bool includeInPreAlpha = PREALPHA_KEYS.HasFlag(rowKeyType);
-                                bool includeInGA = RC_KEYS.HasFlag(rowKeyType);
-
-                                if (keyFilter.HasFlag(KeyTypesFilter.GA))
-                                {
-                                    includeKeyRow = includeInGA;
-                                }
-                                else if (keyFilter.HasFlag(KeyTypesFilter.Beta))
-                                {
-                                    includeKeyRow = includeInBeta;
-                                }
-                                else if (keyFilter.HasFlag(KeyTypesFilter.Alpha))
-                                {
-                                    includeKeyRow = includeInPreview;
-                                }
-                                else if (keyFilter.HasFlag(KeyTypesFilter.PreAlpha))
-                                {
-                                    includeKeyRow = includeInPreAlpha;
-                                }
-                            }
                         }
 
 
@@ -176,10 +173,10 @@ namespace RingtailDeployFeatureUtility
                         var _description = "null";
                         if (!string.IsNullOrEmpty(featureKey.Description))
                         {
-                            _description = featureKey.Description;
+                            _description = featureKey.Description.Trim(',',' ');
                         }
                         
-                        streamWriter.WriteLine(string.Format("1,{0},{1},{2},{3}", featureKey.FeatureKey, _minorKey, dateTimeStamp, _description));
+                        streamWriter.WriteLine(string.Format("1,{0},{1},{2},{3},{4}", featureKey.FeatureKey, featureKey.KeyType, _minorKey, dateTimeStamp, _description));
                         streamWriter.Flush();
                     }
                 }

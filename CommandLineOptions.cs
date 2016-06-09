@@ -31,7 +31,7 @@ class CommandLineOptions
         optionSetValue = new OptionSet()
             {
                     {"s|sqlfile=", "path to static sql file.", v => pathToSqlFile = v},
-                    {"f|filter=", "filter the keys based on the following: PREVIEW, BETA, RC",v => filter = v},
+                    {"f|filter=", "filter the keys based on the following: DEVELOPMENT, BETA, RC",v => filter = v},
                     {"gk|getkeys", "attempts to retrieve keys from the default key file if present",v => useDefaultKeyFile = v != null},
                     {"gf|getfeaturekeys", "attempts to retrieve illuminated feature keys in the database - (needs portalconnection string)",v => getfeaturekeys = v != null},
                     {"hk|haskeys", "determines if the feature keys have been written for the current application version - (needs portalconnection string)",v => hasKeys = v != null},

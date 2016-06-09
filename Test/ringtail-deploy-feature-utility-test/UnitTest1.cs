@@ -44,7 +44,8 @@ namespace ringtail_deploy_feature_utility_test
         {
             var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Beta);
             var cnt = ret.Count();
-            Assert.AreEqual(7, ret.Count());
+            Assert.AreEqual(9, ret.Count());
+
         }
 
         [TestMethod]
@@ -52,14 +53,14 @@ namespace ringtail_deploy_feature_utility_test
         {
             var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Alpha);
             var cnt = ret.Count();
-            Assert.AreEqual(9, ret.Count());
+            Assert.AreEqual(10, ret.Count());
         }
 
 
         [TestMethod]
-        public void TextOperations_ParseCSV_Validate_PreAlphaKeys()
+        public void TextOperations_ParseCSV_Validate_DevelopmentKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.PreAlpha);
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Development);
             var cnt = ret.Count();
             Assert.AreEqual(10, ret.Count());
         }
@@ -77,19 +78,24 @@ namespace ringtail_deploy_feature_utility_test
         [TestMethod]
         public void TextOperations_WriteBuklLoadFeatureFile_Validate_Content()
         {
+            const int expectedNumberOfFields = 6;
+
             var listOfKeys = new List<KeyDataObject>()
             {
                 new KeyDataObject()
                 {
                     Description = "Testing 123",
                     FeatureKey = "Feature1",
-                    MinorKey = null
+                    MinorKey = null,
+                    KeyType = KeyTypesFilter.Development.ToString()
+
                 },
                 new KeyDataObject()
                 {
                     Description = "Testing 321",
                     FeatureKey = "Feature2",
-                    MinorKey = "9.9.009"
+                    MinorKey = "9.9.009",
+                    KeyType = KeyTypesFilter.GA.ToString()
                 }
             };
 
@@ -109,7 +115,7 @@ namespace ringtail_deploy_feature_utility_test
                     {
                         Assert.Fail("Missing file content");
                     }
-                    Assert.AreEqual(5, parts.Length);
+                    Assert.AreEqual(expectedNumberOfFields, parts.Length);
                 }
             }
         }

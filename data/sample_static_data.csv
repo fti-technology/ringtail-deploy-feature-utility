@@ -1,4 +1,4 @@
-﻿"Feature Key","Description","Type(PreAlpha,Alpha,Beta,GA)","Minor key"
+﻿"Feature Key","Description","Type(Devlopment,Alpha,Beta,GA)","Minor key"
 "GAF1","Testing.","GA","8.000.020"
 "GAF2","Testing.","GA","8.000.020"
 "GAF3","Testing.","GA","8.000.020"
@@ -8,4 +8,4 @@
 "BetaF3","Testing.","Beta",""
 "AlphaF2","Testing.","Alpha",""
 "AlphaF2","Testing.","Alpha",""
-"PreAlphaF1","Testing.","PreAlpha",""
+"PreAlphaF1","Testing.","Development",""

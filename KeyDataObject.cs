@@ -10,6 +10,7 @@ namespace RingtailDeployFeatureUtility
     {
         public string FeatureKey { get; set; }
         public string MinorKey { get; set; }
+        public string KeyType { get; set; }
     }
 
     class KeyDataObject : KeyDataObjectBase

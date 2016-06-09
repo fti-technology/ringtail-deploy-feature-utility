@@ -32,7 +32,7 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine();
 
             Console.WriteLine("Get the keys in JSON form from a specific file, with a filter");
-            Console.WriteLine("cmd>{0}.exe --sqlfile=\"d:\\somepath\\myKeyfile.csv\" --filter=\"PREVIEW\"", exeName);
+            Console.WriteLine("cmd>{0}.exe --sqlfile=\"d:\\somepath\\myKeyfile.csv\" --filter=\"DEVELOPMENT\"", exeName);
             Console.WriteLine();
 
             // var keyExmple = "\"[{\"FeatureKey\":\"KEY3\",\"Description\":\"DESCRIPTION of Key3 - ready for general release\",\"MinorKey\":\"8.6.1002\"}]\"";
@@ -57,7 +57,7 @@ namespace RingtailDeployFeatureUtility
             Console.WriteLine("cmd>{0}.exe /getfeaturekeys --portalconnection=\"RGF0YSBTb3VyY2UgPTE5Mi4xNjguMS4yO0luaXRpYWwgQ2F0YWxvZyA9IE15UG9ydGFsO1VzZXIgaWQgPSBNeVBvcnRhbFVzZXI7UGFzc3dvcmQgPSBhYmMxMjM7\" /base64", exeName);
             Console.WriteLine("(OR)");
             Console.WriteLine("Create the bulk data file used for import into the database on a set of keys using file that contains key data.");
-            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keysfile==\"{1}\"", exeName, @"D:\myKeysFile.json");
+            Console.WriteLine("cmd>{0}.exe --bulkdatapath==\"d:\\somepath\\somesubdir\" --keysfile=\"{1}\"", exeName, @"D:\myKeysFile.json");
             Console.WriteLine();
 
         }

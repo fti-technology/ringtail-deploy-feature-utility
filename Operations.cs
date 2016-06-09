@@ -25,7 +25,7 @@ namespace RingtailDeployFeatureUtility
             serializedResult = String.Empty;
 
             string pathToFile;
-            if (cmdLineOpts.useDefaultKeyFile)
+            if (cmdLineOpts.useDefaultKeyFile && string.IsNullOrEmpty(cmdLineOpts.pathToSqlFile))
             {
                 pathToFile = RingtailStaticKeyFile;
             }
@@ -46,9 +46,26 @@ namespace RingtailDeployFeatureUtility
             KeyTypesFilter filterType = KeyTypesFilter.ALL;
             if (!String.IsNullOrEmpty(cmdLineOpts.filter))
             {
+                // Might have a direct match passed in, so handle that first
                 if (!Enum.TryParse(cmdLineOpts.filter, true, out filterType))
                 {
-                    filterType = KeyTypesFilter.ALL; // Default back to all if we go garbage
+                    // TRY PREVIEW, BETA, RC FIRST - simple mappings on the command line
+                    if (string.Compare("RC", cmdLineOpts.filter, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        filterType = KeyTypesFilter.GA;
+                    }
+                    else if(string.Compare("DEVELOPMENT", cmdLineOpts.filter, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        filterType = KeyTypesFilter.ALL;
+                    }
+                    else if (string.Compare("BETA", cmdLineOpts.filter, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        filterType = KeyTypesFilter.Beta;
+                    }
+                    else
+                    {
+                        filterType = KeyTypesFilter.ALL; // Default back to all if we go garbage    
+                    }
                 }
             }
 
