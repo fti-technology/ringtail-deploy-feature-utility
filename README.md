@@ -6,3 +6,14 @@ Utilized by the Ringtail deployment suite.
 
 Reconciles a version of Ringtail with which feature keys can be installed on it.
 Can insert keys provided to it into a Ringtail database.
+
+## Usage
+
+### Getting Keys
+
+    ringtail-deploy-feature-utility --getkeys --filter="PREVIEW"
+    ringtail-deploy-feature-utlility /getfeaturekeys --portalconnection="your connection string"
+
+### Setting Keys
+
+    ringtail-deploy-feature-utility --bulkdatapath="C:\pathToSqlComponents" --keysfile="your keys.json" /base64
