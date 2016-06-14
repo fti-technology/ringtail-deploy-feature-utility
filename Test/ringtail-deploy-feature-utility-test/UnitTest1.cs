@@ -34,7 +34,7 @@ namespace ringtail_deploy_feature_utility_test
         [TestMethod]
         public void TextOperations_ParseCSV_Validate_GAKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.GA); 
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Glacial); 
             var cnt = ret.Count();
             Assert.AreEqual(4, ret.Count());
         }
@@ -42,7 +42,7 @@ namespace ringtail_deploy_feature_utility_test
         [TestMethod]
         public void TextOperations_ParseCSV_Validate_BetaKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Beta);
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Slow);
             var cnt = ret.Count();
             Assert.AreEqual(9, ret.Count());
 
@@ -51,7 +51,7 @@ namespace ringtail_deploy_feature_utility_test
         [TestMethod]
         public void TextOperations_ParseCSV_Validate_AlphaKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Alpha);
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Fast);
             var cnt = ret.Count();
             Assert.AreEqual(10, ret.Count());
         }
@@ -95,7 +95,7 @@ namespace ringtail_deploy_feature_utility_test
                     Description = "Testing 321",
                     FeatureKey = "Feature2",
                     MinorKey = "9.9.009",
-                    KeyType = KeyTypesFilter.GA.ToString()
+                    KeyType = KeyTypesFilter.Glacial.ToString()
                 }
             };
 

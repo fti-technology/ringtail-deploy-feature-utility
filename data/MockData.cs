@@ -52,19 +52,19 @@ namespace RingtailDeployFeatureUtility.data
             {
                 FeatureKey = "MockFeatureKey2",
                 MinorKey = "8.5.100",
-                KeyType = KeyTypesFilter.GA.ToString()
+                KeyType = KeyTypesFilter.Glacial.ToString()
             });
             featureLaunchKeysList.Add(new KeyDataObjectBase
             {
                 FeatureKey = "MockFeatureKey3",
                 MinorKey = "8.6.001",
-                KeyType = KeyTypesFilter.GA.ToString()
+                KeyType = KeyTypesFilter.Glacial.ToString()
             });
             featureLaunchKeysList.Add(new KeyDataObjectBase
             {
                 FeatureKey = "MockFeatureKey4",
                 MinorKey = "8.6.001",
-                KeyType = KeyTypesFilter.GA.ToString()
+                KeyType = KeyTypesFilter.Glacial.ToString()
             });
             return featureLaunchKeysList;
         }

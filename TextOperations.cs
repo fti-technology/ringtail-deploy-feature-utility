@@ -15,11 +15,12 @@ namespace RingtailDeployFeatureUtility
     public enum KeyTypesFilter
     {
         Development = 1,
-        Alpha = 2,
-        Beta = 4,
-        GA = 8,
-        ALL = Development | Alpha | Beta | GA
+        Fast = 2,       // Alpha
+        Slow = 4,       // Beta
+        Glacial = 8,    // Glacial
+        ALL = Development | Fast | Slow | Glacial
     }
+
 
 
 
@@ -29,13 +30,13 @@ namespace RingtailDeployFeatureUtility
     class TextOperations
     {
         // if preview keys are allowed, allow all types
-        private static KeyTypesFilter DEVELOPMENT_KEYS = KeyTypesFilter.Development | KeyTypesFilter.Alpha | KeyTypesFilter.Beta | KeyTypesFilter.GA;
+        private static KeyTypesFilter DEVELOPMENT_KEYS = KeyTypesFilter.Development | KeyTypesFilter.Fast | KeyTypesFilter.Slow | KeyTypesFilter.Glacial;
 
         // Preview shows GA, Beta, and alpha
-        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.GA | KeyTypesFilter.Beta | KeyTypesFilter.Alpha;
+        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.Glacial | KeyTypesFilter.Slow | KeyTypesFilter.Fast;
 
         // if RC keys are allowed, allow only RC
-        private static KeyTypesFilter RC_KEYS = KeyTypesFilter.GA;
+        private static KeyTypesFilter RC_KEYS = KeyTypesFilter.Glacial;
 
 
         /// <summary>
@@ -92,11 +93,11 @@ namespace RingtailDeployFeatureUtility
                             bool includeInPreAlpha = DEVELOPMENT_KEYS.HasFlag(rowKeyType);
                             bool includeInGA = RC_KEYS.HasFlag(rowKeyType);
 
-                            if (keyFilter.HasFlag(KeyTypesFilter.GA))
+                            if (keyFilter.HasFlag(KeyTypesFilter.Glacial))
                             {
                                 includeKeyRow = includeInGA;
                             }
-                            else if (keyFilter.HasFlag(KeyTypesFilter.Beta))
+                            else if (keyFilter.HasFlag(KeyTypesFilter.Slow))
                             {
                                 includeKeyRow = includeInBeta;
                             }
