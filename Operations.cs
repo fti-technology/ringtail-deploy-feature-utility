@@ -52,7 +52,7 @@ namespace RingtailDeployFeatureUtility
                     // TRY PREVIEW, BETA, RC FIRST - simple mappings on the command line
                     if (string.Compare("RC", cmdLineOpts.filter, StringComparison.InvariantCultureIgnoreCase) == 0)
                     {
-                        filterType = KeyTypesFilter.Glacial;
+                        filterType = KeyTypesFilter.RC;
                     }
                     else if(string.Compare("DEVELOPMENT", cmdLineOpts.filter, StringComparison.InvariantCultureIgnoreCase) == 0)
                     {
@@ -60,7 +60,7 @@ namespace RingtailDeployFeatureUtility
                     }
                     else if (string.Compare("BETA", cmdLineOpts.filter, StringComparison.InvariantCultureIgnoreCase) == 0)
                     {
-                        filterType = KeyTypesFilter.Slow;
+                        filterType = KeyTypesFilter.BETA;
                     }
                     else
                     {

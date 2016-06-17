@@ -1,10 +1,12 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.VisualBasic.FileIO;
 using System.Text;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace RingtailDeployFeatureUtility
 {
@@ -14,13 +16,39 @@ namespace RingtailDeployFeatureUtility
     [Flags]
     public enum KeyTypesFilter
     {
-        Development = 1,
-        Fast = 2,       // Alpha
-        Slow = 4,       // Beta
-        Glacial = 8,    // Glacial
-        ALL = Development | Fast | Slow | Glacial
+        [Description("0. Development")]
+        DEVELOPMENT = 1,
+        [Description("1. Portal01")]
+        ALPHA = 2,
+        [Description("2. Demo")]
+        BETA = 4,
+        [Description("3. OnDemand")]
+        GAMMA = 8,
+        [Description("4. SaaS")]
+        RC = 16,
+        [Description("All")]
+        ALL = DEVELOPMENT | ALPHA | BETA | GAMMA | RC
     }
 
+    public static class EnumHelper
+    {
+        public static string GetDescription(object enumValue)
+        {
+            Type type = enumValue.GetType();
+            var memInfo = type.GetMember(enumValue.ToString());
+
+            if (memInfo!= null && memInfo.Length > 0)
+            {
+                object[] attrs = memInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+                if (attrs != null && attrs.Length > 0)
+                {
+                    return ((DescriptionAttribute)attrs[0]).Description;
+                }
+            }
+
+            return enumValue.ToString();
+        }
+    }
 
 
 
@@ -30,13 +58,13 @@ namespace RingtailDeployFeatureUtility
     class TextOperations
     {
         // if preview keys are allowed, allow all types
-        private static KeyTypesFilter DEVELOPMENT_KEYS = KeyTypesFilter.Development | KeyTypesFilter.Fast | KeyTypesFilter.Slow | KeyTypesFilter.Glacial;
+        private static KeyTypesFilter DEVELOPMENT_KEYS = KeyTypesFilter.DEVELOPMENT | KeyTypesFilter.ALPHA | KeyTypesFilter.BETA | KeyTypesFilter.GAMMA | KeyTypesFilter.RC;
 
         // Preview shows GA, Beta, and alpha
-        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.Glacial | KeyTypesFilter.Slow | KeyTypesFilter.Fast;
+        private static KeyTypesFilter BETA_KEYS = KeyTypesFilter.ALPHA | KeyTypesFilter.BETA | KeyTypesFilter.GAMMA | KeyTypesFilter.RC;
 
         // if RC keys are allowed, allow only RC
-        private static KeyTypesFilter RC_KEYS = KeyTypesFilter.Glacial;
+        private static KeyTypesFilter RC_KEYS = KeyTypesFilter.RC;
 
 
         /// <summary>
@@ -93,15 +121,15 @@ namespace RingtailDeployFeatureUtility
                             bool includeInPreAlpha = DEVELOPMENT_KEYS.HasFlag(rowKeyType);
                             bool includeInGA = RC_KEYS.HasFlag(rowKeyType);
 
-                            if (keyFilter.HasFlag(KeyTypesFilter.Glacial))
+                            if (keyFilter.HasFlag(KeyTypesFilter.RC))
                             {
                                 includeKeyRow = includeInGA;
                             }
-                            else if (keyFilter.HasFlag(KeyTypesFilter.Slow))
+                            else if (keyFilter.HasFlag(KeyTypesFilter.BETA))
                             {
                                 includeKeyRow = includeInBeta;
                             }
-                            else if (keyFilter.HasFlag(KeyTypesFilter.Development))
+                            else if (keyFilter.HasFlag(KeyTypesFilter.DEVELOPMENT))
                             {
                                 includeKeyRow = includeInPreAlpha;
                             }
@@ -177,7 +205,7 @@ namespace RingtailDeployFeatureUtility
                             _description = featureKey.Description.Trim(',',' ');
                         }
                         
-                        streamWriter.WriteLine(string.Format("1,{0},{1},{2},{3},{4}", featureKey.FeatureKey, featureKey.KeyType, _minorKey, dateTimeStamp, _description));
+                        streamWriter.WriteLine(string.Format("1,{0},{1},{2},{3}", featureKey.FeatureKey, _minorKey, dateTimeStamp, _description));
                         streamWriter.Flush();
                     }
                 }

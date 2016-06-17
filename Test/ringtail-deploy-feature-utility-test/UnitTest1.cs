@@ -28,13 +28,13 @@ namespace ringtail_deploy_feature_utility_test
         {
             var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.ALL);
             var cnt = ret.Count();
-            Assert.AreEqual(10, ret.Count());
+            Assert.AreEqual(13, ret.Count());
         }
 
         [TestMethod]
         public void TextOperations_ParseCSV_Validate_GAKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Glacial); 
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.RC); 
             var cnt = ret.Count();
             Assert.AreEqual(4, ret.Count());
         }
@@ -42,27 +42,27 @@ namespace ringtail_deploy_feature_utility_test
         [TestMethod]
         public void TextOperations_ParseCSV_Validate_BetaKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Slow);
-            var cnt = ret.Count();
-            Assert.AreEqual(9, ret.Count());
-
-        }
-
-        [TestMethod]
-        public void TextOperations_ParseCSV_Validate_AlphaKeys()
-        {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Fast);
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.BETA);
             var cnt = ret.Count();
             Assert.AreEqual(10, ret.Count());
+
         }
+
+        //[TestMethod]
+        //public void TextOperations_ParseCSV_Validate_AlphaKeys()
+        //{
+        //    var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.ALPHA);
+        //    var cnt = ret.Count();
+        //    Assert.AreEqual(2, ret.Count());
+        //}
 
 
         [TestMethod]
         public void TextOperations_ParseCSV_Validate_DevelopmentKeys()
         {
-            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.Development);
+            var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.DEVELOPMENT);
             var cnt = ret.Count();
-            Assert.AreEqual(10, ret.Count());
+            Assert.AreEqual(13, ret.Count());
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@ namespace ringtail_deploy_feature_utility_test
         [TestMethod]
         public void TextOperations_WriteBuklLoadFeatureFile_Validate_Content()
         {
-            const int expectedNumberOfFields = 6;
+            const int expectedNumberOfFields = 5;
 
             var listOfKeys = new List<KeyDataObject>()
             {
@@ -87,7 +87,7 @@ namespace ringtail_deploy_feature_utility_test
                     Description = "Testing 123",
                     FeatureKey = "Feature1",
                     MinorKey = null,
-                    KeyType = KeyTypesFilter.Development.ToString()
+                    KeyType = KeyTypesFilter.DEVELOPMENT.ToString()
 
                 },
                 new KeyDataObject()
@@ -95,7 +95,7 @@ namespace ringtail_deploy_feature_utility_test
                     Description = "Testing 321",
                     FeatureKey = "Feature2",
                     MinorKey = "9.9.009",
-                    KeyType = KeyTypesFilter.Glacial.ToString()
+                    KeyType = KeyTypesFilter.RC.ToString()
                 }
             };
 
