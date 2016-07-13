@@ -29,6 +29,8 @@ namespace RingtailDeployFeatureUtility
         // 4 - error writing build data key file
         // 5 - key list deserialization error
         // 6 - DB error
+        // 7 - Error getting current database version
+        // 8 - Error syncing builk data file from DB
         ////////////////////////////////////////////////////////////
         static int Main(string[] args)
         {
@@ -102,6 +104,14 @@ namespace RingtailDeployFeatureUtility
             if ((!string.IsNullOrEmpty(cmdLineOpts.pathToBulkDataKeyFile)) && (!string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeys) || !string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeysPath)))
             {
                 return Operations.WriteBuklLoadFeatureFile(args, cmdLineOpts, serializer);
+            }
+            else if ( (!string.IsNullOrEmpty(cmdLineOpts.pathToBulkDataKeyFile)) && (!string.IsNullOrEmpty(cmdLineOpts.portalConnectionString)))
+            {
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
+                /// This case is responsible for getting the extended dark launch keys out of the portal 
+                /// and writing them to the bulk data file for the case - essentially sync up the keys for the case.
+                /////////////////////////////////////////////////////////////////////////////////////////////////////
+                return Operations.SyncPortalKeysToBulkDataFile(cmdLineOpts.portalConnectionString, cmdLineOpts.pathToBulkDataKeyFile);
             }
             else if (cmdLineOpts.testMode && (string.IsNullOrEmpty(cmdLineOpts.featureLaunchKeys)))
             {

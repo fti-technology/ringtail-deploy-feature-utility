@@ -13,7 +13,6 @@ namespace ringtail_deploy_feature_utility_test
     {
         const string SampleCSVFile = "sample_static_data.csv";
 
-
         [TestMethod]
         public void TextOperations_ParseCSV_BadPath()
         {
@@ -47,14 +46,6 @@ namespace ringtail_deploy_feature_utility_test
             Assert.AreEqual(10, ret.Count());
 
         }
-
-        //[TestMethod]
-        //public void TextOperations_ParseCSV_Validate_AlphaKeys()
-        //{
-        //    var ret = RingtailDeployFeatureUtility.TextOperations.ParseCSV(SampleCSVFile, KeyTypesFilter.ALPHA);
-        //    var cnt = ret.Count();
-        //    Assert.AreEqual(2, ret.Count());
-        //}
 
 
         [TestMethod]

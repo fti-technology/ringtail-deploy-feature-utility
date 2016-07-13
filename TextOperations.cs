@@ -155,7 +155,6 @@ namespace RingtailDeployFeatureUtility
             }
         }
 
-
         /// <summary>
         /// Write out bulk data load file that is used with sql "bulk insert"
         /// to insert the keys into the database.

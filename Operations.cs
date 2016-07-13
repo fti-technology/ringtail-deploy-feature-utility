@@ -75,6 +75,31 @@ namespace RingtailDeployFeatureUtility
             return 0;
         }
 
+        internal static int SyncPortalKeysToBulkDataFile(string connectionString, string bulkLoadFilePath)
+        {
+            try
+            {
+                List<KeyDataObject> featureKeyList = new List<KeyDataObject>();
+                if (DataBaseOperations.GetFeaturesForPortalRev(connectionString, out featureKeyList) != 0)
+                    return 8;
+
+                if (!TextOperations.WriteBuklLoadFeatureFile(bulkLoadFilePath, featureKeyList, null))
+                {
+                    return 4;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write("Error, key list could not be deserialized: ", e.Message);
+                {
+                    return 8;
+                }
+            }
+
+            return 0;
+
+        }
+
         internal static int WriteBuklLoadFeatureFile(string[] args, CommandLineOptions cmdLineOpts, JavaScriptSerializer serializer)
         {
             try
